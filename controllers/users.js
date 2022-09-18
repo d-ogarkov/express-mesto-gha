@@ -27,7 +27,7 @@ module.exports.getUser = (req, res) => {
 
 module.exports.createUser = (req, res) => {
   const { name, about, avatar } = req.body;
-  User.create({ name, about, avatar }).select('name about avatar _id')
+  User.create({ name, about, avatar })
     .then(user => res.send({ data: user }))
     .catch(err => {
       if (err.name === ERROR_TYPE.validity) {
