@@ -16,7 +16,7 @@ module.exports.getCards = (req, res) => {
 module.exports.createCard = (req, res) => {
   const { name, link } = req.body;
   const owner = req.user;
-  Card.create({ name, link, owner }).select('name link owner likes _id')
+  Card.create({ name, link, owner })
     .then(card => res.send({ data: card }))
     .catch(err => {
       if (err.name === ERROR_TYPE.validity) {
