@@ -1,8 +1,8 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser'); 
-
 const { PORT = 3000, BASE_PATH } = process.env;
+const { MESSAGE_TYPE, STATUS_CODE } = require('./constants/errors');
 const app = express();
 
 // Подключаемся к серверу MongoDB
@@ -19,6 +19,11 @@ app.use(bodyParser.json());
 
 app.use('/', require('./routes/users'));
 app.use('/', require('./routes/cards'));
+
+// В конце ловим неправильные пути
+app.use((req, res) => {
+  return res.status(STATUS_CODE.notFound).send({ message: MESSAGE_TYPE.noPath });
+});
 
 // Слушаем порт
 app.listen(PORT, () => {
