@@ -1,4 +1,3 @@
-const mongoose = require('mongoose');
 const User = require('../models/user');
 const { ERROR_TYPE, MESSAGE_TYPE, STATUS_CODE } = require('../constants/errors');
 

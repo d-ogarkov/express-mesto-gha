@@ -1,4 +1,3 @@
-const mongoose = require('mongoose');
 const Card = require('../models/card');
 const { ERROR_TYPE, MESSAGE_TYPE, STATUS_CODE } = require('../constants/errors');
 
@@ -33,6 +32,7 @@ module.exports.deleteCard = (req, res) => {
         return res.status(STATUS_CODE.notFound).send({ message: MESSAGE_TYPE.noCard });
       }
       res.send({ data: card });
+      return true;
     })
     .catch((err) => {
       if (err.name === ERROR_TYPE.validity || err.name === ERROR_TYPE.cast) {
@@ -40,6 +40,8 @@ module.exports.deleteCard = (req, res) => {
       }
       return res.status(STATUS_CODE.internalServerError).send({ message: MESSAGE_TYPE.default });
     });
+
+  return true;
 };
 
 module.exports.likeCard = (req, res) => {
