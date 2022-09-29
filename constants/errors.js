@@ -1,6 +1,9 @@
 const STATUS_CODE = {
   badRequest: 400,
+  unauthorized: 401,
+  forbidden: 403,
   notFound: 404,
+  conflict: 409,
   internalServerError: 500,
 };
 
@@ -10,12 +13,15 @@ const MESSAGE_TYPE = {
   noUser: 'Пользователь с указанным id не найден',
   noCard: 'Карточка с указанным id не найдена',
   noPath: 'Неверно указан путь',
+  unauthorized: 'Не пройдена авторизация',
+  userExists: 'Пользователь уже существует',
   default: 'Внутренняя ошибка сервера',
 };
 
 const ERROR_TYPE = {
   cast: 'CastError',
   validity: 'ValidationError',
+  authorization: 'AuthError',
 };
 
 module.exports = {

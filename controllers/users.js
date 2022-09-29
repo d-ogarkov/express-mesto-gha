@@ -1,49 +1,117 @@
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-const { ERROR_TYPE, MESSAGE_TYPE, STATUS_CODE } = require('../constants/errors');
+const NotFoundError = require('../errors/not-found');
+const ValidityError = require('../errors/validity');
+const AuthError = require('../errors/auth');
+const ConflictError = require('../errors/auth');
+const { ERROR_TYPE, MESSAGE_TYPE } = require('../constants/errors');
 
-module.exports.getUsers = (req, res) => {
-  User.find({}).select('name about avatar _id')
+module.exports.login = (req, res, next) => {
+  const { email, password } = req.body;
+
+  return User.findUserByCredentials(email, password)
+    .then((user) => {
+      // Создадим токен
+      const token = jwt.sign(
+        { _id: user._id },
+        'some-secret-key',
+        { expiresIn: '7d' },
+      );
+
+      // Вернем токен в куке с опциями httpOnly и sameSite
+      res.cookie('jwt', token, {
+        maxAge: 3600000 * 24 * 7,
+        httpOnly: true,
+        sameSite: true,
+      }).end();
+    })
+    .catch(() => {
+      throw new AuthError(MESSAGE_TYPE.unauthorized);
+    })
+    .catch(next);
+};
+
+module.exports.getUsers = (req, res, next) => {
+  User.find({}).select('name about avatar email _id')
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === ERROR_TYPE.validity || err.name === ERROR_TYPE.cast) {
-        return res.status(STATUS_CODE.badRequest).send({ message: MESSAGE_TYPE.validity });
+        throw new ValidityError(MESSAGE_TYPE.validity);
+      } else {
+        throw err;
       }
-      return res.status(STATUS_CODE.internalServerError).send({ message: MESSAGE_TYPE.default });
-    });
+    })
+    .catch(next);
 };
 
-module.exports.getUser = (req, res) => {
-  User.findById(req.params.userId).select('name about avatar _id')
+module.exports.getUser = (req, res, next) => {
+  User.findById(req.params.userId).select('name about avatar email _id')
     .then((user) => {
       if (!user) {
-        return res.status(STATUS_CODE.notFound).send({ message: MESSAGE_TYPE.noUser });
+        throw new NotFoundError(MESSAGE_TYPE.noUser);
       }
       res.send({ data: user });
       return true;
     })
     .catch((err) => {
       if (err.name === ERROR_TYPE.validity || err.name === ERROR_TYPE.cast) {
-        return res.status(STATUS_CODE.badRequest).send({ message: MESSAGE_TYPE.validity });
+        throw new ValidityError(MESSAGE_TYPE.validity);
+      } else {
+        throw err;
       }
-      return res.status(STATUS_CODE.internalServerError).send({ message: MESSAGE_TYPE.default });
-    });
+    })
+    .catch(next);
 
   return true;
 };
 
-module.exports.createUser = (req, res) => {
-  const { name, about, avatar } = req.body;
-  User.create({ name, about, avatar })
-    .then((user) => res.send({ data: user }))
+module.exports.getCurrentUser = (req, res, next) => {
+  console.log(req.user);
+  User.findById(req.user._id).select('name about avatar email _id')
+    .then((user) => {
+      if (!user) {
+        throw new NotFoundError(MESSAGE_TYPE.noUser);
+      }
+      res.send({ data: user });
+      return true;
+    })
     .catch((err) => {
       if (err.name === ERROR_TYPE.validity || err.name === ERROR_TYPE.cast) {
-        return res.status(STATUS_CODE.badRequest).send({ message: MESSAGE_TYPE.validity });
+        throw new ValidityError(MESSAGE_TYPE.validity);
+      } else {
+        throw err;
       }
-      return res.status(STATUS_CODE.internalServerError).send({ message: MESSAGE_TYPE.default });
-    });
+    })
+    .catch(next);
+
+  return true;
 };
 
-module.exports.updateUser = (req, res) => {
+module.exports.createUser = (req, res, next) => {
+  const {
+    name, about, avatar, email, password,
+  } = req.body;
+
+  bcrypt.hash(password, 10)
+    .then((hash) => User.create({
+      name, about, avatar, email, password: hash,
+    }))
+    .then((user) => res.send({ data: user }))
+    .catch((err) => {
+      if (err.code === 11000) {
+        throw new ConflictError(MESSAGE_TYPE.userExists);
+      } else
+      if (err.name === ERROR_TYPE.validity || err.name === ERROR_TYPE.cast) {
+        throw new ValidityError(MESSAGE_TYPE.validity);
+      } else {
+        throw err;
+      }
+    })
+    .catch(next);
+};
+
+module.exports.updateUser = (req, res, next) => {
   const { name, about } = req.body;
   User.findByIdAndUpdate(
     req.user._id,
@@ -55,20 +123,22 @@ module.exports.updateUser = (req, res) => {
   ).select('name about avatar _id')
     .then((user) => {
       if (!user) {
-        return res.status(STATUS_CODE.notFound).send({ message: MESSAGE_TYPE.noUser });
+        throw new NotFoundError(MESSAGE_TYPE.noUser);
       }
       res.send({ data: user });
       return true;
     })
     .catch((err) => {
       if (err.name === ERROR_TYPE.validity || err.name === ERROR_TYPE.cast) {
-        return res.status(STATUS_CODE.badRequest).send({ message: MESSAGE_TYPE.validity });
+        throw new ValidityError(MESSAGE_TYPE.validity);
+      } else {
+        throw err;
       }
-      return res.status(STATUS_CODE.internalServerError).send({ message: MESSAGE_TYPE.default });
-    });
+    })
+    .catch(next);
 };
 
-module.exports.updateAvatar = (req, res) => {
+module.exports.updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
   User.findByIdAndUpdate(
     req.user._id,
@@ -80,15 +150,17 @@ module.exports.updateAvatar = (req, res) => {
   ).select('name about avatar _id')
     .then((user) => {
       if (!user) {
-        return res.status(STATUS_CODE.notFound).send({ message: MESSAGE_TYPE.noUser });
+        throw new NotFoundError(MESSAGE_TYPE.noUser);
       }
       res.send({ data: user });
       return true;
     })
     .catch((err) => {
       if (err.name === ERROR_TYPE.validity || err.name === ERROR_TYPE.cast) {
-        return res.status(STATUS_CODE.badRequest).send({ message: MESSAGE_TYPE.validity });
+        throw new ValidityError(MESSAGE_TYPE.validity);
+      } else {
+        throw err;
       }
-      return res.status(STATUS_CODE.internalServerError).send({ message: MESSAGE_TYPE.default });
-    });
+    })
+    .catch(next);
 };
