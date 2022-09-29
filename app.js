@@ -2,7 +2,7 @@ const express = require('express');
 const cookieParser = require('cookie-parser');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const { celebrate, Joi } = require('celebrate');
+const { errors, celebrate, Joi } = require('celebrate');
 
 const auth = require('./middlewares/auth');
 const { login, createUser } = require('./controllers/users');
@@ -47,7 +47,10 @@ app.use('/', require('./routes/cards'));
 // После всех роутов ловим неправильные пути
 app.use((req, res) => res.status(STATUS_CODE.notFound).send({ message: MESSAGE_TYPE.noPath }));
 
-// И централизованно обрабатываем ошибки
+// Обработчик ошибок celebrate
+app.use(errors());
+
+// Централизованная обработка ошибок
 app.use((err, req, res, next) => {
   // Если у ошибки нет статуса, выставляем 500
   const { statusCode = 500, message } = err;

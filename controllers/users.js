@@ -67,7 +67,6 @@ module.exports.getUser = (req, res, next) => {
 };
 
 module.exports.getCurrentUser = (req, res, next) => {
-  console.log(req.user);
   User.findById(req.user._id).select('name about avatar email _id')
     .then((user) => {
       if (!user) {
@@ -97,7 +96,15 @@ module.exports.createUser = (req, res, next) => {
     .then((hash) => User.create({
       name, about, avatar, email, password: hash,
     }))
-    .then((user) => res.send({ data: user }))
+    .then((user) => {
+      res.send({
+        name: user.name,
+        about: user.about,
+        avatar: user.about,
+        email: user.email,
+        _id: user._id,
+      });
+    })
     .catch((err) => {
       if (err.code === 11000) {
         throw new ConflictError(MESSAGE_TYPE.userExists);
