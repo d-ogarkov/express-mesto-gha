@@ -108,7 +108,7 @@ module.exports.createUser = (req, res, next) => {
       res.send({
         name: user.name,
         about: user.about,
-        avatar: user.about,
+        avatar: user.avatar,
         email: user.email,
       });
     })
