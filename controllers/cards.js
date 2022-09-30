@@ -1,7 +1,7 @@
 const Card = require('../models/card');
 const NotFoundError = require('../errors/not-found');
 const ValidityError = require('../errors/validity');
-const AuthError = require('../errors/auth');
+const ForbiddenError = require('../errors/forbidden');
 const { ERROR_TYPE, MESSAGE_TYPE } = require('../constants/errors');
 
 module.exports.getCards = (req, res, next) => {
@@ -42,7 +42,7 @@ module.exports.deleteCard = (req, res, next) => {
       // Проверим, принадлежит ли эта карточка текущему пользователю
       const isOwn = card.owner._id.equals(req.user._id);
       if (!isOwn) {
-        throw new AuthError(MESSAGE_TYPE.forbidden);
+        throw new ForbiddenError(MESSAGE_TYPE.forbidden);
       }
 
       // Если проверка пройдена, удалим карточку

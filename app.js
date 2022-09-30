@@ -7,12 +7,15 @@ const { errors, celebrate, Joi } = require('celebrate');
 const auth = require('./middlewares/auth');
 const { login, createUser } = require('./controllers/users');
 const { MESSAGE_TYPE, STATUS_CODE } = require('./constants/errors');
+const { REGEX_PATTERN } = require('./constants/patterns');
 
 const { PORT = 3000, BASE_PATH } = process.env;
 const app = express();
 
 // Подключаемся к серверу MongoDB
-mongoose.connect('mongodb://localhost:27017/mestodb');
+mongoose.connect('mongodb://localhost:27017/mestodb', {
+  autoIndex: true,
+});
 
 // Для разбора JSON
 app.use(bodyParser.json());
@@ -23,7 +26,7 @@ app.use(cookieParser());
 // Эти роуты не требуют авторизации
 app.post('/signin', celebrate({
   body: Joi.object().keys({
-    email: Joi.string().required(),
+    email: Joi.string().required().pattern(REGEX_PATTERN.email),
     password: Joi.string().required(),
   }),
 }), login);
@@ -31,8 +34,8 @@ app.post('/signup', celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
-    avatar: Joi.string().pattern(/(https?:\/\/)?(www.)?[a-z0-9-.]+\.[a-z0-9-]+[0-9a-z\-._~:/?#[\]@!$&'()*+,;=]+#?/i),
-    email: Joi.string().required().pattern(/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/i),
+    avatar: Joi.string().pattern(REGEX_PATTERN.url),
+    email: Joi.string().required().pattern(REGEX_PATTERN.email),
     password: Joi.string().required(),
   }),
 }), createUser);

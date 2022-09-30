@@ -4,7 +4,7 @@ const User = require('../models/user');
 const NotFoundError = require('../errors/not-found');
 const ValidityError = require('../errors/validity');
 const AuthError = require('../errors/auth');
-const ConflictError = require('../errors/auth');
+const ConflictError = require('../errors/conflict');
 const { ERROR_TYPE, MESSAGE_TYPE } = require('../constants/errors');
 
 module.exports.login = (req, res, next) => {
@@ -19,6 +19,13 @@ module.exports.login = (req, res, next) => {
         { expiresIn: '7d' },
       );
 
+      res.send({
+        name: user.name,
+        about: user.about,
+        avatar: user.about,
+        email: user.email,
+      });
+
       // Вернем токен в куке с опциями httpOnly и sameSite
       res.cookie('jwt', token, {
         maxAge: 3600000 * 24 * 7,
@@ -26,7 +33,8 @@ module.exports.login = (req, res, next) => {
         sameSite: true,
       }).end();
     })
-    .catch(() => {
+    .catch((err) => {
+      console.log(err);
       throw new AuthError(MESSAGE_TYPE.unauthorized);
     })
     .catch(next);
@@ -102,7 +110,6 @@ module.exports.createUser = (req, res, next) => {
         about: user.about,
         avatar: user.about,
         email: user.email,
-        _id: user._id,
       });
     })
     .catch((err) => {
