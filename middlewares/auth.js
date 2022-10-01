@@ -4,11 +4,15 @@ const { MESSAGE_TYPE } = require('../constants/errors');
 
 // Middleware для авторизации
 module.exports = (req, res, next) => {
-  const token = req.cookies.jwt;
+  let token = req.cookies.jwt;
 
   // Кука 'jwt' с токеном должна присутствовать
   if (!token) {
-    throw new AuthError(MESSAGE_TYPE.unauthorized);
+    const { authorization } = req.headers;
+    if (!authorization || !authorization.startsWith('Bearer ')) {
+      throw new AuthError(MESSAGE_TYPE.unauthorized);
+    }
+    token = authorization.replace('Bearer ', '');
   }
 
   let payload;

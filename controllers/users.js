@@ -19,12 +19,7 @@ module.exports.login = (req, res, next) => {
         { expiresIn: '7d' },
       );
 
-      res.send({
-        name: user.name,
-        about: user.about,
-        avatar: user.about,
-        email: user.email,
-      });
+      res.send({ token });
 
       // Вернем токен в куке с опциями httpOnly и sameSite
       res.cookie('jwt', token, {
