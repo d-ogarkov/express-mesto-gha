@@ -29,7 +29,6 @@ module.exports.login = (req, res, next) => {
       }).end();
     })
     .catch((err) => {
-      console.log(err);
       throw new AuthError(MESSAGE_TYPE.unauthorized);
     })
     .catch(next);

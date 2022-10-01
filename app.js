@@ -14,7 +14,7 @@ const app = express();
 
 // Подключаемся к серверу MongoDB
 mongoose.connect('mongodb://localhost:27017/mestodb', {
-  autoIndex: true,
+  autoIndex: true, // Без этого не будет работать unique: true в userSchema.email
 });
 
 // Для разбора JSON

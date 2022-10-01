@@ -4,9 +4,10 @@ const { MESSAGE_TYPE } = require('../constants/errors');
 
 // Middleware для авторизации
 module.exports = (req, res, next) => {
+  // Кука 'jwt' с токеном должна присутствовать
   let token = req.cookies.jwt;
 
-  // Кука 'jwt' с токеном должна присутствовать
+  // Но если ее нет, проверим еще токен в заголовках (без этого не проходят тесты ПР14)
   if (!token) {
     const { authorization } = req.headers;
     if (!authorization || !authorization.startsWith('Bearer ')) {
