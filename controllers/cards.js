@@ -47,7 +47,14 @@ module.exports.deleteCard = (req, res, next) => {
 
       // Если проверка пройдена, удалим карточку
       Card.findByIdAndRemove(req.params.cardId)
-        .then((deletedCard) => res.send({ data: deletedCard }));
+        .then((deletedCard) => res.send({ data: deletedCard }))
+        .catch((err) => {
+          if (err.name === ERROR_TYPE.validity || err.name === ERROR_TYPE.cast) {
+            throw new ValidityError(MESSAGE_TYPE.validity);
+          } else {
+            throw err;
+          }
+        });
       return true;
     })
     .catch((err) => {

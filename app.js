@@ -44,11 +44,11 @@ app.post('/signup', celebrate({
 app.use(auth);
 
 // Все роуты ниже требуют авторизации
-app.use('/', require('./routes/users'));
-app.use('/', require('./routes/cards'));
+app.use('/users', require('./routes/users'));
+app.use('/cards', require('./routes/cards'));
 
 // После всех роутов ловим неправильные пути
-app.use((req, res) => res.status(STATUS_CODE.notFound).send({ message: MESSAGE_TYPE.noPath }));
+//app.use((req, res) => res.status(STATUS_CODE.notFound).send({ message: MESSAGE_TYPE.noPath }));
 
 // Обработчик ошибок celebrate
 app.use(errors());

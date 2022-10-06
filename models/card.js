@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { REGEX_PATTERN } = require('../constants/patterns');
 
 const cardSchema = new mongoose.Schema({
   name: {
@@ -10,6 +11,11 @@ const cardSchema = new mongoose.Schema({
   link: {
     type: String,
     required: true,
+    validate: { // Валидация корректности ссылки на картинку на уровне схемы
+      validator(v) {
+        return REGEX_PATTERN.url.test(v);
+      },
+    },
   },
   owner: {
     type: mongoose.Schema.Types.ObjectId,

@@ -28,22 +28,12 @@ module.exports.login = (req, res, next) => {
         sameSite: true,
       }).end();
     })
-    .catch(() => {
-      throw new AuthError(MESSAGE_TYPE.unauthorized);
-    })
     .catch(next);
 };
 
 module.exports.getUsers = (req, res, next) => {
-  User.find({}).select('name about avatar email _id')
+  User.find({})
     .then((user) => res.send({ data: user }))
-    .catch((err) => {
-      if (err.name === ERROR_TYPE.validity || err.name === ERROR_TYPE.cast) {
-        throw new ValidityError(MESSAGE_TYPE.validity);
-      } else {
-        throw err;
-      }
-    })
     .catch(next);
 };
 
@@ -55,13 +45,6 @@ module.exports.getUser = (req, res, next) => {
       }
       res.send({ data: user });
       return true;
-    })
-    .catch((err) => {
-      if (err.name === ERROR_TYPE.validity || err.name === ERROR_TYPE.cast) {
-        throw new ValidityError(MESSAGE_TYPE.validity);
-      } else {
-        throw err;
-      }
     })
     .catch(next);
 
@@ -76,13 +59,6 @@ module.exports.getCurrentUser = (req, res, next) => {
       }
       res.send({ data: user });
       return true;
-    })
-    .catch((err) => {
-      if (err.name === ERROR_TYPE.validity || err.name === ERROR_TYPE.cast) {
-        throw new ValidityError(MESSAGE_TYPE.validity);
-      } else {
-        throw err;
-      }
     })
     .catch(next);
 
@@ -106,7 +82,7 @@ module.exports.createUser = (req, res, next) => {
         email: user.email,
       });
     })
-    .catch((err) => {
+/*    .catch((err) => {
       if (err.code === 11000) {
         throw new ConflictError(MESSAGE_TYPE.userExists);
       } else
@@ -115,7 +91,7 @@ module.exports.createUser = (req, res, next) => {
       } else {
         throw err;
       }
-    })
+    }) */
     .catch(next);
 };
 
@@ -136,13 +112,13 @@ module.exports.updateUser = (req, res, next) => {
       res.send({ data: user });
       return true;
     })
-    .catch((err) => {
+/*    .catch((err) => {
       if (err.name === ERROR_TYPE.validity || err.name === ERROR_TYPE.cast) {
         throw new ValidityError(MESSAGE_TYPE.validity);
       } else {
         throw err;
       }
-    })
+    }) */
     .catch(next);
 };
 
@@ -163,12 +139,12 @@ module.exports.updateAvatar = (req, res, next) => {
       res.send({ data: user });
       return true;
     })
-    .catch((err) => {
+/*    .catch((err) => {
       if (err.name === ERROR_TYPE.validity || err.name === ERROR_TYPE.cast) {
         throw new ValidityError(MESSAGE_TYPE.validity);
       } else {
         throw err;
       }
-    })
+    }) */
     .catch(next);
 };
