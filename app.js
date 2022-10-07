@@ -6,7 +6,8 @@ const { errors, celebrate, Joi } = require('celebrate');
 
 const auth = require('./middlewares/auth');
 const { login, createUser } = require('./controllers/users');
-const { MESSAGE_TYPE, STATUS_CODE } = require('./constants/errors');
+const NotFoundError = require('./errors/not-found');
+const { MESSAGE_TYPE } = require('./constants/errors');
 const { REGEX_PATTERN } = require('./constants/patterns');
 
 const { PORT = 3000, BASE_PATH } = process.env;
@@ -48,7 +49,9 @@ app.use('/users', require('./routes/users'));
 app.use('/cards', require('./routes/cards'));
 
 // После всех роутов ловим неправильные пути
-//app.use((req, res) => res.status(STATUS_CODE.notFound).send({ message: MESSAGE_TYPE.noPath }));
+app.use(() => {
+  throw new NotFoundError(MESSAGE_TYPE.noPath);
+});
 
 // Обработчик ошибок celebrate
 app.use(errors());

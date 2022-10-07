@@ -2,10 +2,8 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const NotFoundError = require('../errors/not-found');
-const ValidityError = require('../errors/validity');
-const AuthError = require('../errors/auth');
 const ConflictError = require('../errors/conflict');
-const { ERROR_TYPE, MESSAGE_TYPE } = require('../constants/errors');
+const { MESSAGE_TYPE } = require('../constants/errors');
 
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
@@ -82,16 +80,13 @@ module.exports.createUser = (req, res, next) => {
         email: user.email,
       });
     })
-/*    .catch((err) => {
+    .catch((err) => {
       if (err.code === 11000) {
         throw new ConflictError(MESSAGE_TYPE.userExists);
-      } else
-      if (err.name === ERROR_TYPE.validity || err.name === ERROR_TYPE.cast) {
-        throw new ValidityError(MESSAGE_TYPE.validity);
       } else {
         throw err;
       }
-    }) */
+    })
     .catch(next);
 };
 
@@ -112,13 +107,6 @@ module.exports.updateUser = (req, res, next) => {
       res.send({ data: user });
       return true;
     })
-/*    .catch((err) => {
-      if (err.name === ERROR_TYPE.validity || err.name === ERROR_TYPE.cast) {
-        throw new ValidityError(MESSAGE_TYPE.validity);
-      } else {
-        throw err;
-      }
-    }) */
     .catch(next);
 };
 
@@ -139,12 +127,5 @@ module.exports.updateAvatar = (req, res, next) => {
       res.send({ data: user });
       return true;
     })
-/*    .catch((err) => {
-      if (err.name === ERROR_TYPE.validity || err.name === ERROR_TYPE.cast) {
-        throw new ValidityError(MESSAGE_TYPE.validity);
-      } else {
-        throw err;
-      }
-    }) */
     .catch(next);
 };
