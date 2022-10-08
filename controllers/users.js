@@ -40,7 +40,7 @@ module.exports.getUser = (req, res, next) => {
   User.findById(req.params.userId).select('name about avatar email _id')
     .then((user) => {
       if (!user) {
-        throw new NotFoundError(MESSAGE_TYPE.noUser);
+        return next(NotFoundError(MESSAGE_TYPE.noUser));
       }
       res.send({ data: user });
       return true;
@@ -59,7 +59,7 @@ module.exports.getCurrentUser = (req, res, next) => {
   User.findById(req.user._id).select('name about avatar email _id')
     .then((user) => {
       if (!user) {
-        throw new NotFoundError(MESSAGE_TYPE.noUser);
+        return next(NotFoundError(MESSAGE_TYPE.noUser));
       }
       res.send({ data: user });
       return true;
@@ -88,8 +88,9 @@ module.exports.createUser = (req, res, next) => {
     })
     .catch((err) => {
       if (err.code === 11000) {
-        throw new ConflictError(MESSAGE_TYPE.userExists);
-      } else if (err.name === ERROR_TYPE.validity) {
+        return next(new ConflictError(MESSAGE_TYPE.userExists));
+      }
+      if (err.name === ERROR_TYPE.validity) {
         return next(new ValidityError(MESSAGE_TYPE.validity));
       }
       return next(err);
@@ -108,7 +109,7 @@ module.exports.updateUser = (req, res, next) => {
   ).select('name about avatar _id')
     .then((user) => {
       if (!user) {
-        throw new NotFoundError(MESSAGE_TYPE.noUser);
+        return next(new NotFoundError(MESSAGE_TYPE.noUser));
       }
       res.send({ data: user });
       return true;
@@ -133,7 +134,7 @@ module.exports.updateAvatar = (req, res, next) => {
   ).select('name about avatar _id')
     .then((user) => {
       if (!user) {
-        throw new NotFoundError(MESSAGE_TYPE.noUser);
+        return next(new NotFoundError(MESSAGE_TYPE.noUser));
       }
       res.send({ data: user });
       return true;
