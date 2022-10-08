@@ -1,9 +1,10 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-const NotFoundError = require('../errors/not-found');
 const ConflictError = require('../errors/conflict');
-const { MESSAGE_TYPE } = require('../constants/errors');
+const NotFoundError = require('../errors/not-found');
+const ValidityError = require('../errors/validity');
+const { ERROR_TYPE, MESSAGE_TYPE } = require('../constants/errors');
 
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
@@ -44,7 +45,12 @@ module.exports.getUser = (req, res, next) => {
       res.send({ data: user });
       return true;
     })
-    .catch(next);
+    .catch((err) => {
+      if (err.name === ERROR_TYPE.cast) {
+        return next(new ValidityError(MESSAGE_TYPE.validity));
+      }
+      return next(err);
+    });
 
   return true;
 };
@@ -83,11 +89,11 @@ module.exports.createUser = (req, res, next) => {
     .catch((err) => {
       if (err.code === 11000) {
         throw new ConflictError(MESSAGE_TYPE.userExists);
-      } else {
-        throw err;
+      } else if (err.name === ERROR_TYPE.validity) {
+        return next(new ValidityError(MESSAGE_TYPE.validity));
       }
-    })
-    .catch(next);
+      return next(err);
+    });
 };
 
 module.exports.updateUser = (req, res, next) => {
@@ -107,7 +113,12 @@ module.exports.updateUser = (req, res, next) => {
       res.send({ data: user });
       return true;
     })
-    .catch(next);
+    .catch((err) => {
+      if (err.name === ERROR_TYPE.validity) {
+        return next(new ValidityError(MESSAGE_TYPE.validity));
+      }
+      return next(err);
+    });
 };
 
 module.exports.updateAvatar = (req, res, next) => {
@@ -127,5 +138,10 @@ module.exports.updateAvatar = (req, res, next) => {
       res.send({ data: user });
       return true;
     })
-    .catch(next);
+    .catch((err) => {
+      if (err.name === ERROR_TYPE.validity) {
+        return next(new ValidityError(MESSAGE_TYPE.validity));
+      }
+      return next(err);
+    });
 };

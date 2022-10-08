@@ -1,19 +1,11 @@
 const Card = require('../models/card');
 const NotFoundError = require('../errors/not-found');
-const ValidityError = require('../errors/validity');
 const ForbiddenError = require('../errors/forbidden');
-const { ERROR_TYPE, MESSAGE_TYPE } = require('../constants/errors');
+const { MESSAGE_TYPE } = require('../constants/errors');
 
 module.exports.getCards = (req, res, next) => {
   Card.find({}).select('name link owner likes _id')
     .then((card) => res.send({ data: card }))
-    .catch((err) => {
-      if (err.name === ERROR_TYPE.validity || err.name === ERROR_TYPE.cast) {
-        throw new ValidityError(MESSAGE_TYPE.validity);
-      } else {
-        throw err;
-      }
-    })
     .catch(next);
 };
 
@@ -22,13 +14,6 @@ module.exports.createCard = (req, res, next) => {
   const owner = req.user._id;
   Card.create({ name, link, owner })
     .then((card) => res.send({ data: card }))
-    .catch((err) => {
-      if (err.name === ERROR_TYPE.validity || err.name === ERROR_TYPE.cast) {
-        throw new ValidityError(MESSAGE_TYPE.validity);
-      } else {
-        throw err;
-      }
-    })
     .catch(next);
 };
 
@@ -48,21 +33,8 @@ module.exports.deleteCard = (req, res, next) => {
       // Если проверка пройдена, удалим карточку
       Card.findByIdAndRemove(req.params.cardId)
         .then((deletedCard) => res.send({ data: deletedCard }))
-        .catch((err) => {
-          if (err.name === ERROR_TYPE.validity || err.name === ERROR_TYPE.cast) {
-            throw new ValidityError(MESSAGE_TYPE.validity);
-          } else {
-            throw err;
-          }
-        });
+        .catch(next);
       return true;
-    })
-    .catch((err) => {
-      if (err.name === ERROR_TYPE.validity || err.name === ERROR_TYPE.cast) {
-        throw new ValidityError(MESSAGE_TYPE.validity);
-      } else {
-        throw err;
-      }
     })
     .catch(next);
 
@@ -82,13 +54,6 @@ module.exports.likeCard = (req, res, next) => {
       res.send({ data: card });
       return true;
     })
-    .catch((err) => {
-      if (err.name === ERROR_TYPE.validity || err.name === ERROR_TYPE.cast) {
-        throw new ValidityError(MESSAGE_TYPE.validity);
-      } else {
-        throw err;
-      }
-    })
     .catch(next);
 
   return true;
@@ -106,13 +71,6 @@ module.exports.dislikeCard = (req, res, next) => {
       }
       res.send({ data: card });
       return true;
-    })
-    .catch((err) => {
-      if (err.name === ERROR_TYPE.validity || err.name === ERROR_TYPE.cast) {
-        throw new ValidityError(MESSAGE_TYPE.validity);
-      } else {
-        throw err;
-      }
     })
     .catch(next);
 
