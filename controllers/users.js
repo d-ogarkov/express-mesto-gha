@@ -18,14 +18,14 @@ module.exports.login = (req, res, next) => {
         { expiresIn: '7d' },
       );
 
-      res.send({ token });
-
       // Вернем токен в куке с опциями httpOnly и sameSite
       res.cookie('jwt', token, {
         maxAge: 3600000 * 24 * 7,
         httpOnly: true,
         sameSite: true,
-      }).end();
+      });
+
+      res.send({ token }).end();
     })
     .catch(next);
 };
