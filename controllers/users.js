@@ -40,7 +40,7 @@ module.exports.getUser = (req, res, next) => {
   User.findById(req.params.userId).select('name about avatar email _id')
     .then((user) => {
       if (!user) {
-        return next(NotFoundError(MESSAGE_TYPE.noUser));
+        throw new NotFoundError(MESSAGE_TYPE.noUser);
       }
       res.send({ data: user });
       return true;
@@ -59,7 +59,7 @@ module.exports.getCurrentUser = (req, res, next) => {
   User.findById(req.user._id).select('name about avatar email _id')
     .then((user) => {
       if (!user) {
-        return next(NotFoundError(MESSAGE_TYPE.noUser));
+        throw new NotFoundError(MESSAGE_TYPE.noUser);
       }
       res.send({ data: user });
       return true;
@@ -109,7 +109,7 @@ module.exports.updateUser = (req, res, next) => {
   ).select('name about avatar _id')
     .then((user) => {
       if (!user) {
-        return next(new NotFoundError(MESSAGE_TYPE.noUser));
+        throw new NotFoundError(MESSAGE_TYPE.noUser);
       }
       res.send({ data: user });
       return true;
@@ -134,7 +134,7 @@ module.exports.updateAvatar = (req, res, next) => {
   ).select('name about avatar _id')
     .then((user) => {
       if (!user) {
-        return next(new NotFoundError(MESSAGE_TYPE.noUser));
+        throw new NotFoundError(MESSAGE_TYPE.noUser);
       }
       res.send({ data: user });
       return true;
